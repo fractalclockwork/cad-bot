@@ -12,6 +12,15 @@
 
 Drawing/spec authoring: **`skill_5_drawing_to_cadquery`**.
 
+### Add a part from a McMaster-Carr URL
+
+1. **Log into McMaster** in a browser; Product Detail → select **3-D STEP** → download by hand into `vendor/mcmaster/`, **keeping McMaster’s original filename** (e.g. `3971N31_Ready-Mount Bearing Housing.STEP`; gitignored — never commit). Do not automate CAD download or use the Product API.
+2. Follow **`skill_7_mcmaster_to_cadquery`**: PART id `mcm_<lowercase_partnum>`, `importStep` + axis frame, catalog dims for asserts
+3. `PART=mcm_… ./scripts/run_pipeline.sh --skip-human`
+4. Confirm `git status` does not stage vendor STEP files
+
+Exemplar: `parts/mcm_3971n31/`.
+
 Checklist: dims.md · axes · STEP/STL · stl3d views · pipeline A–D
 
 ## Add an assembly

@@ -41,7 +41,7 @@ Commands:
   run [args...]      docker compose run --rm cad [args...]
 
 Environment:
-  PART               Part name under parts/ (default: kp08)
+  PART               Name under parts/ or assemblies/ (default: kp08)
 EOF
 }
 

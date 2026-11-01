@@ -10,6 +10,7 @@ services:
       - ./assemblies:/work/assemblies:ro
       - ./scripts:/work/scripts:ro
       - ./skills:/work/skills:ro
+      - ./vendor:/work/vendor
       - ./output:/work/output
       - ./docs:/work/docs
       - ./pyproject.toml:/work/pyproject.toml:ro

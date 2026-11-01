@@ -109,47 +109,15 @@ def assert_geometry(compound: cq.Compound) -> None:
     )
 
 
-def export_profile_dxf(dxf_path: Path) -> None:
-    """Top view: plate outline + four mounting holes (assembly footprint)."""
-    import ezdxf
-
-    plate_mod = load_part_module("plate_100x150x5")
-    half_w = float(plate_mod.plate_width) / 2.0
-    half_d = float(plate_mod.plate_depth) / 2.0
-    attrs = {"color": 0, "lineweight": 35}
-    doc = ezdxf.new(setup=True)
-    msp = doc.modelspace()
-    msp.add_lwpolyline(
-        [
-            (-half_w, -half_d),
-            (half_w, -half_d),
-            (half_w, half_d),
-            (-half_w, half_d),
-        ],
-        close=True,
-        dxfattribs=attrs,
-    )
-    msp.add_line((-half_w, 0.0), (half_w, 0.0), dxfattribs=attrs)
-    msp.add_line((0.0, -half_d), (0.0, half_d), dxfattribs=attrs)
-    r = float(plate_mod.bolt_hole_diameter) / 2.0
-    for x, y in plate_mod._hole_points():  # noqa: SLF001
-        msp.add_circle((x, y), r, dxfattribs=attrs)
-    # Shaft end as centerline circle at origin (top projection of axis)
-    msp.add_circle((0.0, 0.0), 4.0, dxfattribs=attrs)
-    doc.saveas(str(dxf_path))
-
-
 def export_artifacts(assy: cq.Assembly, compound: cq.Compound, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     step_path = out_dir / f"{PART_NAME}.step"
     stl_path = out_dir / f"{PART_NAME}.stl"
-    dxf_path = out_dir / f"{PART_NAME}_profile.dxf"
 
     assy.save(str(step_path), exportType="STEP")
     cq.exporters.export(compound, str(stl_path))
-    export_profile_dxf(dxf_path)
 
-    for path in (step_path, stl_path, dxf_path):
+    for path in (step_path, stl_path):
         if not path.is_file() or path.stat().st_size <= 0:
             raise RuntimeError(f"Export failed or empty: {path}")
         print(f"EXPORT OK: {path} ({path.stat().st_size} bytes)")

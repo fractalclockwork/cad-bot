@@ -10,6 +10,7 @@
 | [`skill_4_human_verify`](skills/skill_4_human_verify/SKILL.md) | Staged y/n per view |
 | [`skill_5_drawing_to_cadquery`](skills/skill_5_drawing_to_cadquery/SKILL.md) | New part from drawing/spec |
 | [`skill_6_assembly_workflow`](skills/skill_6_assembly_workflow/SKILL.md) | Compose parts into an assembly |
+| [`skill_7_mcmaster_to_cadquery`](skills/skill_7_mcmaster_to_cadquery/SKILL.md) | McMaster URL → importStep (gitignored vendor STEP) |
 
 Checklists: [`CONTRIBUTING.md`](CONTRIBUTING.md).
 

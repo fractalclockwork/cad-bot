@@ -10,7 +10,7 @@ class ViewSpec:
     key: str
     filename: str
     title: str
-    kind: str  # "stl3d" | "dxf2d"
+    kind: str  # "stl3d"
     criteria: tuple[str, ...]
 
 
@@ -62,18 +62,6 @@ VIEWS: tuple[ViewSpec, ...] = (
             "Boss/housing rises above the base",
             "Shaft bore runs left/right in this view (along Y), not into the page",
             "Geometry is coherent (not an empty frame)",
-        ),
-    ),
-    ViewSpec(
-        key="profile",
-        filename="profile.png",
-        title="2D top profile (DXF)",
-        kind="dxf2d",
-        criteria=(
-            "Black linework on white background (not blank / not white-on-white)",
-            "Capsule outline with two rounded ends",
-            "Exactly two flange/bolt-hole circles — no center shaft hole in this plane",
-            "Clean 2D mounting-base drawing (XY), not a side elevation",
         ),
     ),
 )

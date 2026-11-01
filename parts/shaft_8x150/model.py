@@ -70,27 +70,15 @@ def assert_geometry(shape: cq.Workplane) -> None:
     )
 
 
-def export_profile_dxf(dxf_path: Path) -> None:
-    """End view (looking along Y): Ød circle in XZ drawn as XY DXF for 2D preview."""
-    import ezdxf
-
-    doc = ezdxf.new(setup=True)
-    msp = doc.modelspace()
-    msp.add_circle((0.0, 0.0), shaft_diameter / 2.0, dxfattribs={"color": 0, "lineweight": 35})
-    doc.saveas(str(dxf_path))
-
-
 def export_artifacts(shape: cq.Workplane, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     step_path = out_dir / f"{PART_NAME}.step"
     stl_path = out_dir / f"{PART_NAME}.stl"
-    dxf_path = out_dir / f"{PART_NAME}_profile.dxf"
 
     cq.exporters.export(shape, str(step_path))
     cq.exporters.export(shape, str(stl_path))
-    export_profile_dxf(dxf_path)
 
-    for path in (step_path, stl_path, dxf_path):
+    for path in (step_path, stl_path):
         if not path.is_file() or path.stat().st_size <= 0:
             raise RuntimeError(f"Export failed or empty: {path}")
         print(f"EXPORT OK: {path} ({path.stat().st_size} bytes)")

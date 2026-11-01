@@ -163,42 +163,15 @@ def assert_geometry(shape: cq.Workplane) -> None:
     )
 
 
-def export_profile_dxf(dxf_path: Path) -> None:
-    """Top-view 2D base profile: capsule + two flange holes only (no shaft bore)."""
-    import ezdxf
-
-    half_pitch = bolt_hole_pitch / 2.0
-    r = flange_radius
-    doc = ezdxf.new(setup=True)
-    msp = doc.modelspace()
-    msp.add_lwpolyline(
-        [
-            (-half_pitch, r, 0),
-            (half_pitch, r, -1),
-            (half_pitch, -r, 0),
-            (-half_pitch, -r, -1),
-        ],
-        format="xyb",
-        close=True,
-        dxfattribs={"color": 0, "lineweight": 35},
-    )
-    hole_attrs = {"color": 0, "lineweight": 35}
-    msp.add_circle((-half_pitch, 0), bolt_hole_diameter / 2.0, dxfattribs=hole_attrs)
-    msp.add_circle((half_pitch, 0), bolt_hole_diameter / 2.0, dxfattribs=hole_attrs)
-    doc.saveas(str(dxf_path))
-
-
 def export_artifacts(shape: cq.Workplane, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     step_path = out_dir / f"{PART_NAME}.step"
     stl_path = out_dir / f"{PART_NAME}.stl"
-    dxf_path = out_dir / f"{PART_NAME}_profile.dxf"
 
     cq.exporters.export(shape, str(step_path))
     cq.exporters.export(shape, str(stl_path))
-    export_profile_dxf(dxf_path)
 
-    for path in (step_path, stl_path, dxf_path):
+    for path in (step_path, stl_path):
         if not path.is_file() or path.stat().st_size <= 0:
             raise RuntimeError(f"Export failed or empty: {path}")
         print(f"EXPORT OK: {path} ({path.stat().st_size} bytes)")

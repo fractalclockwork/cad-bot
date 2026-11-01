@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
-"""Headless preview renders for part/assembly artifacts (STL + DXF → PNG/SVG + gallery)."""
+"""Headless preview renders for part/assembly artifacts (STL → PNG + gallery)."""
 from __future__ import annotations
 
 import shutil
 import sys
 from pathlib import Path
 
-import ezdxf
 import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import trimesh  # noqa: E402
-from ezdxf.addons.drawing import Frontend, RenderContext, layout, svg  # noqa: E402
-from ezdxf.addons.drawing.config import BackgroundPolicy, ColorPolicy, Configuration  # noqa: E402
-from ezdxf.addons.drawing.matplotlib import MatplotlibBackend  # noqa: E402
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -23,11 +19,6 @@ from part_config import ensure_part_layout, load_views, resolve  # noqa: E402
 
 IMG_SIZE = 10.0
 DPI = 102
-
-DRAW_CONFIG = Configuration(
-    background_policy=BackgroundPolicy.WHITE,
-    color_policy=ColorPolicy.BLACK,
-)
 
 CAMERA = {
     "iso": (25.0, 45.0),
@@ -111,57 +102,6 @@ def render_stl_views(stl_path: Path, preview_dir: Path, views) -> list[Path]:
             fail(f"Failed to write preview: {out}")
         print(f"RENDER OK: {out} ({out.stat().st_size} bytes)")
         written.append(out)
-    return written
-
-
-def render_dxf(dxf_path: Path, preview_dir: Path, part_name: str, views) -> list[Path]:
-    if not dxf_path.is_file() or dxf_path.stat().st_size <= 0:
-        fail(f"DXF missing or empty: {dxf_path}")
-
-    doc = ezdxf.readfile(str(dxf_path))
-    msp = doc.modelspace()
-    ctx = RenderContext(doc)
-    written: list[Path] = []
-
-    dxf_views = [v for v in views if v.kind == "dxf2d"]
-    if not dxf_views:
-        png_name = "profile.png"
-        title = f"{part_name} profile (DXF)"
-    else:
-        png_name = dxf_views[0].filename
-        title = dxf_views[0].title
-
-    png_path = preview_dir / png_name
-    fig = plt.figure(figsize=(IMG_SIZE, IMG_SIZE), dpi=DPI)
-    ax = fig.add_axes([0.05, 0.05, 0.9, 0.9])
-    backend = MatplotlibBackend(ax)
-    Frontend(ctx, backend, config=DRAW_CONFIG).draw_layout(msp, finalize=True)
-    ax.set_aspect("equal")
-    ax.autoscale(enable=True)
-    ax.set_title(title)
-    ax.set_facecolor("white")
-    ax.grid(True, alpha=0.25)
-    fig.patch.set_facecolor("white")
-    fig.savefig(png_path, dpi=DPI, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
-    if not png_path.is_file() or png_path.stat().st_size <= 0:
-        fail(f"Failed to write DXF PNG: {png_path}")
-    print(f"RENDER OK: {png_path} ({png_path.stat().st_size} bytes)")
-    written.append(png_path)
-
-    svg_path = preview_dir / f"{part_name}_profile.svg"
-    backend_svg = svg.SVGBackend()
-    Frontend(ctx, backend_svg, config=DRAW_CONFIG).draw_layout(msp, finalize=True)
-    page = layout.Page(297, 210, layout.Units.mm, margins=layout.Margins.all(10))
-    svg_string = backend_svg.get_string(page, settings=layout.Settings(fit_page=True))
-    svg_string = svg_string.replace("stroke: #ffffff", "stroke: #000000")
-    svg_string = svg_string.replace('fill="#212830"', 'fill="#ffffff"')
-    svg_path.write_text(svg_string, encoding="utf-8")
-    if not svg_path.is_file() or svg_path.stat().st_size <= 0:
-        fail(f"Failed to write DXF SVG: {svg_path}")
-    print(f"RENDER OK: {svg_path} ({svg_path.stat().st_size} bytes)")
-    written.append(svg_path)
-
     return written
 
 
@@ -328,7 +268,6 @@ def main() -> None:
 
     render_stl_views(paths.stl, preview_dir, views)
     stage_model_stl(paths.stl, preview_dir)
-    # DXF profile renders are not part of the default verification path.
     write_gallery(preview_dir, paths.name, views)
     print("RENDER PREVIEWS PASS")
 

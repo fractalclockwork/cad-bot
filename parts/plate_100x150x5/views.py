@@ -10,7 +10,7 @@ class ViewSpec:
     key: str
     filename: str
     title: str
-    kind: str  # "stl3d" | "dxf2d"
+    kind: str  # "stl3d"
     criteria: tuple[str, ...]
 
 
@@ -58,17 +58,6 @@ VIEWS: tuple[ViewSpec, ...] = (
             "Thin slab; depth spans ~150 mm in Y",
             "Bottom on Z=0",
             "Hole openings may appear along the length",
-        ),
-    ),
-    ViewSpec(
-        key="profile",
-        filename="profile.png",
-        title="2D top profile (DXF)",
-        kind="dxf2d",
-        criteria=(
-            "Black linework on white background",
-            "Closed rectangular outline",
-            "Exactly four hole circles (two KP08 patterns)",
         ),
     ),
 )

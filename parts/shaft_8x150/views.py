@@ -10,7 +10,7 @@ class ViewSpec:
     key: str
     filename: str
     title: str
-    kind: str  # "stl3d" | "dxf2d"
+    kind: str  # "stl3d"
     criteria: tuple[str, ...]
 
 
@@ -58,17 +58,6 @@ VIEWS: tuple[ViewSpec, ...] = (
             "Side view shows a long cylinder / rectangle along Y",
             "Height of the bar matches diameter (~8 mm span in Z)",
             "No pillow-block housing features",
-        ),
-    ),
-    ViewSpec(
-        key="profile",
-        filename="profile.png",
-        title="2D end profile (DXF)",
-        kind="dxf2d",
-        criteria=(
-            "Black linework on white background",
-            "Single circle of diameter 8 mm (end view)",
-            "No mounting base / bolt holes",
         ),
     ),
 )

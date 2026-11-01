@@ -15,6 +15,7 @@ Run **before** generating or exporting CAD geometry.
 - Image: `cad-bot:latest` (`docker compose build`)
 - CadQuery via `uv run` inside the container
 - `./output/`, `./parts/`, `./assemblies/` mounted; `PART` set (default `kp08`)
+- `./vendor/` mounted when present (gitignored McMaster STEP cache for skill_7)
 
 ## How to run
 

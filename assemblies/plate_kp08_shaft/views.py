@@ -60,17 +60,6 @@ VIEWS: tuple[ViewSpec, ...] = (
             "Plate thickness visible at the bottom",
         ),
     ),
-    ViewSpec(
-        key="profile",
-        filename="profile.png",
-        title="2D top profile (DXF)",
-        kind="dxf2d",
-        criteria=(
-            "Black linework on white background",
-            "Plate rectangle with four mounting holes",
-            "Center mark / shaft indication at origin",
-        ),
-    ),
 )
 
 REVIEW_SCHEMA_VERSION = 1
