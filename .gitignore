@@ -1,0 +1,29 @@
+# Generated CAD / previews
+output/**
+!output/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+.Python
+dist/
+build/
+
+# Editor / local
+.cursor/
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+
+# Debug / local logs
+*.log
+debug-*.log
+
+# Env
+.env
+.env.*

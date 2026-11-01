@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-11-01T14:36:29.378876+00:00",
+  "overall": "fail",
+  "views": [
+    {
+      "key": "iso",
+      "filename": "kp08_iso.png",
+      "title": "Isometric",
+      "status": "fail",
+      "note": "bore is in wrong plane",
+      "criteria": [
+        "Capsule base with two bolt flanges is visible",
+        "Central housing/boss is visible above the base",
+        "Shaft bore opening is visible on the boss",
+        "Part is not clipped; axes labels readable"
+      ]
+    },
+    {
+      "key": "front",
+      "filename": "kp08_front.png",
+      "title": "Front (XZ)",
+      "status": "fail",
+      "note": "bore is not thru the plane",
+      "criteria": [
+        "Base sits along the bottom of the view",
+        "Shaft bore appears as a circle (or clear round opening) through the boss",
+        "Overall height shows base + boss (not a flat plate only)",
+        "Left/right flange ends are visible"
+      ]
+    },
+    {
+      "key": "top",
+      "filename": "kp08_top.png",
+      "title": "Top (XY)",
+      "status": "pass",
+      "note": "",
+      "criteria": [
+        "Capsule / dog-bone base outline is clear",
+        "Two bolt holes are visible, spaced along the long axis",
+        "Central body/boss footprint is centered between the bolts",
+        "No obvious mesh explosion or missing halves"
+      ]
+    },
+    {
+      "key": "right",
+      "filename": "kp08_right.png",
+      "title": "Right (YZ)",
+      "status": "fail",
+      "note": "bore is thru plane, ought to be left/right in this plane",
+      "criteria": [
+        "Base thickness is visible as a horizontal slab",
+        "Boss/housing rises above the base",
+        "Shaft-axis direction is into/out of the page (round boss profile)",
+        "Geometry is coherent (not an empty frame)"
+      ]
+    },
+    {
+      "key": "profile",
+      "filename": "kp08_profile.png",
+      "title": "2D profile (DXF)",
+      "status": "fail",
+      "note": "there ought to be only two flang holes.  the bole incorrectly goes thru this plane",
+      "criteria": [
+        "Black linework on white background (not blank / not white-on-white)",
+        "Capsule outline with two rounded ends",
+        "Two bolt-hole circles at flange centers",
+        "One central bore circle",
+        "Clean 2D drawing (not a messy 3D edge projection)"
+      ]
+    }
+  ]
+}

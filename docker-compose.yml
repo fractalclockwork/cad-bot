@@ -1,0 +1,21 @@
+services:
+  cad:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cad-bot:latest
+    working_dir: /work
+    volumes:
+      - ./parts:/work/parts:ro
+      - ./assemblies:/work/assemblies:ro
+      - ./scripts:/work/scripts:ro
+      - ./skills:/work/skills:ro
+      - ./output:/work/output
+      - ./docs:/work/docs
+      - ./pyproject.toml:/work/pyproject.toml:ro
+      - ./uv.lock:/work/uv.lock:ro
+    environment:
+      - UV_PROJECT_ENVIRONMENT=/opt/cad-bot/.venv
+      - VIRTUAL_ENV=/opt/cad-bot/.venv
+      - PATH=/opt/cad-bot/.venv/bin:/usr/local/bin:/usr/bin:/bin
+      - PART=${PART:-kp08}

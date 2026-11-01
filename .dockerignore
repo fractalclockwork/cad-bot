@@ -1,0 +1,16 @@
+.git
+.cursor
+output
+**/__pycache__
+**/*.pyc
+.venv
+*.egg-info
+docs/reviews/*.json
+*.log
+.env
+.env.*
+README.md
+LICENSE
+CONTRIBUTING.md
+AGENTS.md
+.github

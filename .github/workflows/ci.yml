@@ -1,0 +1,19 @@
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker compose build
+
+      - name: Run KP08 pipeline (skip human)
+        run: PART=kp08 ./scripts/run_pipeline.sh --skip-human
