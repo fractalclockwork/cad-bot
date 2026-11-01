@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "part": "tripod_head_openbeam_15_legs",
+  "reviewed_at": "2026-11-01T18:32:29.606652+00:00",
+  "overall": "pass",
+  "views": [
+    {
+      "key": "iso",
+      "filename": "iso.png",
+      "title": "Isometric",
+      "status": "pass",
+      "note": "",
+      "criteria": [
+        "Head hub with three equal OpenBeam legs",
+        "Cube-corner splay: legs mutually orthogonal, 120\u00b0 in top view",
+        "Assembly not clipped"
+      ]
+    },
+    {
+      "key": "front",
+      "filename": "front.png",
+      "title": "Front (\u2212Y)",
+      "status": "pass",
+      "note": "",
+      "criteria": [
+        "Legs pitch downward from hub at cube-corner splay",
+        "Beam ends seated in U-cradles against the stop"
+      ]
+    },
+    {
+      "key": "top",
+      "filename": "top.png",
+      "title": "Top (+Z)",
+      "status": "pass",
+      "note": "",
+      "criteria": [
+        "Three legs at 120\u00b0 around hub (cube-corner top view)",
+        "Equal radial reach; no leg missing a socket"
+      ]
+    },
+    {
+      "key": "right",
+      "filename": "right.png",
+      "title": "Right (+X)",
+      "status": "pass",
+      "note": "",
+      "criteria": [
+        "Leg along +X cradle seated at stop (flush to stop face)",
+        "Beam T-slot orientation matches bolt / section-center axis"
+      ]
+    }
+  ]
+}

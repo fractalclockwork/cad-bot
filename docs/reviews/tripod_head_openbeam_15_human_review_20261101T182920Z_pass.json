@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "part": "tripod_head_openbeam_15",
+  "reviewed_at": "2026-11-01T18:29:20.396045+00:00",
+  "overall": "pass",
+  "views": [
+    {
+      "key": "iso",
+      "filename": "iso.png",
+      "title": "Isometric",
+      "status": "pass",
+      "note": "",
+      "criteria": [
+        "Central hub with three distinct U-cradles visible",
+        "Cube-corner layout: cradles equally spaced in azimuth, each pitched ~35\u00b0 down",
+        "Part not clipped; no merged/blocked sockets"
+      ]
+    },
+    {
+      "key": "front",
+      "filename": "front.png",
+      "title": "Front (\u2212Y)",
+      "status": "pass",
+      "note": "",
+      "criteria": [
+        "Cradle(s) pitched ~35\u00b0 down from horizontal (cube-corner splay, not flat)",
+        "M3 clearance hole through cradle side walls readable or clearly implied",
+        "Hub does not fill the U-pocket in front of the stop"
+      ]
+    },
+    {
+      "key": "top",
+      "filename": "top.png",
+      "title": "Top (+Z)",
+      "status": "pass",
+      "note": "",
+      "criteria": [
+        "Three cradles at 120\u00b0 around hub (cube-corner top view)",
+        "U openings clear to the stop face (hub cylinder not plugging sockets)",
+        "Radial symmetry of the three arms is obvious"
+      ]
+    },
+    {
+      "key": "right",
+      "filename": "right.png",
+      "title": "Right (+X)",
+      "status": "pass",
+      "note": "",
+      "criteria": [
+        "Cradle on +X azimuth shows stop wall and pocket depth",
+        "Bolt hole ~7.5 mm from stop, through beam section / T-slot center",
+        "Beam channel open from stop outward (seat path clear)"
+      ]
+    }
+  ]
+}

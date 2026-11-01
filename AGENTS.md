@@ -11,6 +11,7 @@
 | [`skill_5_drawing_to_cadquery`](skills/skill_5_drawing_to_cadquery/SKILL.md) | New part from drawing/spec |
 | [`skill_6_assembly_workflow`](skills/skill_6_assembly_workflow/SKILL.md) | Compose parts into an assembly |
 | [`skill_7_mcmaster_to_cadquery`](skills/skill_7_mcmaster_to_cadquery/SKILL.md) | McMaster URL → importStep (gitignored vendor STEP) |
+| [`skill_8_language_to_cadquery`](skills/skill_8_language_to_cadquery/SKILL.md) | New printable part from natural language |
 
 Checklists: [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
@@ -40,3 +41,4 @@ PART=plate_mcm_1434k33_shaft ./scripts/run_pipeline.sh --skip-human
 - Archive human reviews under `docs/reviews/`
 - Assemblies: `load_part_module` + explicit mates — see skill_6
 - Assemblies: classify pillow vs flange (measure bore vs mount axes) **before** mates; if intent conflicts with geometry, **stop and ask** human A/B with only valid options + plate cutouts (skill_6 human conflict resolution)
+- Language → part: resolve ambiguity and print/assembly conflicts **before** CadQuery; do not invent critical dims (skill_8)

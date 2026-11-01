@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "part": "tripod_head_openbeam_15",
+  "reviewed_at": "2026-11-01T19:15:11.656333+00:00",
+  "overall": "fail",
+  "views": [
+    {
+      "key": "iso",
+      "filename": "iso.png",
+      "title": "Isometric",
+      "status": "pass",
+      "note": "",
+      "criteria": [
+        "Flat mount pad on solid core; three U-cradles fused by filled convex hulls",
+        "No floating sockets or hairline bridges \u2014 continuous solid post\u2192U",
+        "U openings face downward (drop-in); part not clipped"
+      ]
+    },
+    {
+      "key": "front",
+      "filename": "front.png",
+      "title": "Front (\u2212Y)",
+      "status": "pass",
+      "note": "",
+      "criteria": [
+        "Cradle(s) pitched ~35\u00b0 down; U open downward for leg drop-in",
+        "Convex hull blend from post into cradle is a filled taper, not a loft ribbon",
+        "M3 hole through cradle walls readable or clearly implied"
+      ]
+    },
+    {
+      "key": "top",
+      "filename": "top.png",
+      "title": "Top (+Z)",
+      "status": "pass",
+      "note": "",
+      "criteria": [
+        "Flat circular mount pad; three cradles at 120\u00b0 (cube-corner top view)",
+        "Hulls visible as filled sectors; U-pockets clear of neighbors",
+        "Radial symmetry obvious"
+      ]
+    },
+    {
+      "key": "right",
+      "filename": "right.png",
+      "title": "Right (+X)",
+      "status": "fail",
+      "note": "no bolt holes",
+      "criteria": [
+        "Cradle on +X shows stop, pocket depth, and solid hull into the core",
+        "Bolt hole ~7.5 mm from stop through section / T-slot center",
+        "Mount pad flat on top"
+      ]
+    }
+  ]
+}

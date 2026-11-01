@@ -12,6 +12,19 @@
 
 Drawing/spec authoring: **`skill_5_drawing_to_cadquery`**.
 
+### Add a part from natural language
+
+1. Follow **`skill_8_language_to_cadquery`**: parse intent; run ambiguity + print/assembly gates; **stop and ask** 1–2 A/B questions when mates/dims are unclear — do not invent critical numbers
+2. After human lock-in: `./scripts/new_part.sh <name>` and fill `parts/<name>/drawings/dims.md` (explicit print clearances ~0.2 mm)
+3. Implement `build_part()`, asserts, export STEP + STL
+4. `PART=<name> ./scripts/run_pipeline.sh --skip-human`
+5. `PART=<name> ./scripts/open_gallery.sh`
+6. Fit/orientation fail → new conflict cycle (re-ask; do not silent-guess)
+
+Design-spec template + print gates: `skills/skill_8_language_to_cadquery/reference.md`.
+Archived cautionary case (not an exemplar):
+[`docs/postmortems/tripod_head_openbeam_15.md`](docs/postmortems/tripod_head_openbeam_15.md).
+
 ### Add a part from a McMaster-Carr URL
 
 1. **Log into McMaster** in a browser; Product Detail → select **3-D STEP** → download by hand into `vendor/mcmaster/`, **keeping McMaster’s original filename** (e.g. `3971N31_Ready-Mount Bearing Housing.STEP`; gitignored — never commit). Do not automate CAD download or use the Product API.

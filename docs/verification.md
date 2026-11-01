@@ -56,6 +56,13 @@ See skill_6 **Human conflict resolution**.
 
 See `skill_6_assembly_workflow`.
 
+## Archived partial: `tripod_head_openbeam_15`
+
+Functional sockets/bolts after heavy churn, but **not** print-ready (overhangs)
+and **not** a language→CAD exemplar. See
+[`postmortems/tripod_head_openbeam_15.md`](postmortems/tripod_head_openbeam_15.md).
+Return only after stronger design-spec / FDM gates.
+
 ## Archive policy
 
 `human_verify.py` writes `output/<name>/previews/human_review.json` and copies to

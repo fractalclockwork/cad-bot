@@ -76,5 +76,6 @@ Update `views.py` criteria; `skill_4` when signing off.
 
 ## Related
 
-`skill_1`–`skill_4`; `skill_6` for assemblies; McMaster URL → `skill_7_mcmaster_to_cadquery`;
+`skill_1`–`skill_4`; natural language → `skill_8_language_to_cadquery`;
+`skill_6` for assemblies; McMaster URL → `skill_7_mcmaster_to_cadquery`;
 exemplar `parts/kp08/`.
