@@ -5,10 +5,10 @@ Source: https://www.mcmaster.com/1434K33/
 Geometry: cq.importers.importStep from gitignored vendor/mcmaster/
 Prefer: 1434K33_Mounted Roller Bearing with Two-Bolt Flange.STEP
 
-Axis convention after framing:
+Flange-mount axis convention after framing (NOT pillow-block Y=shaft):
 - X: flange long axis / bolt pitch
-- Y: shaft / bearing axis
-- Z: up in flange plane (short flange axis); mount face framed to Z≈0 family
+- Y: flange short axis in the mount plane
+- Z: shaft / bore axis (up from mount face); mount face framed to Z≈0
 """
 from __future__ import annotations
 
@@ -23,10 +23,16 @@ MCM_PART = "1434K33"
 MCM_VENDOR_STEP = "1434K33_Mounted Roller Bearing with Two-Bolt Flange.STEP"
 DIM_TOL = 1.0  # mm
 
-# Envelope from McMaster STEP after framing (mm) — catalog table TBD if published
-overall_length = 45.0  # X — flange long
-shaft_depth = 16.8  # Y — along shaft
-flange_width = 31.8  # Z — flange short / height after frame
+# Envelope from McMaster STEP after flange-mount framing (mm)
+overall_length = 45.0  # X — flange long / bolt pitch
+flange_width = 31.8  # Y — flange short in mount plane
+overall_height = 16.8  # Z — along shaft from mount face
+
+# Mate refs measured from framed vendor STEP (cylinders / circular edges)
+mount_pitch = 30.9  # X C–C of mount holes (±15.45)
+mount_hole_d = 5.5  # mount hole diameter (r=2.75)
+bore_diameter = 8.8  # shaft bore (r=4.4); Ø8 shaft clears
+# No boss protrudes below Z=0 after framing — plate needs shaft clearance only
 
 
 def _vendor_dirs() -> list[Path]:
@@ -79,8 +85,8 @@ def _bb_lens(solid) -> tuple[float, float, float]:
 
 
 def _frame_to_repo_axes(wp: cq.Workplane) -> cq.Workplane:
-    """Map imported BB to X≈flange length, Y≈shaft depth, Z≈flange width; Zmin→0."""
-    target = (overall_length, shaft_depth, flange_width)
+    """Map imported BB to X≈flange length, Y≈flange width, Z≈height along shaft; Zmin→0."""
+    target = (overall_length, flange_width, overall_height)
     best = wp
     best_err = float("inf")
     best_solid = wp.val()
@@ -137,21 +143,24 @@ def assert_geometry(shape: cq.Workplane) -> None:
     print(
         f"SPEC CHECK:\n"
         f"  overall_length  expect {overall_length:.1f}  BB.x={lx:.2f}\n"
-        f"  shaft_depth     expect {shaft_depth:.1f}  BB.y={ly:.2f}\n"
-        f"  flange_width    expect {flange_width:.1f}  BB.z={lz:.2f}"
+        f"  flange_width    expect {flange_width:.1f}  BB.y={ly:.2f}\n"
+        f"  overall_height  expect {overall_height:.1f}  BB.z={lz:.2f}\n"
+        f"  bore_diameter   measured {bore_diameter:.1f} (mate ref, shaft along Z)\n"
+        f"  mount_pitch     measured {mount_pitch:.1f} (mate ref)\n"
+        f"  mount_hole_d    measured {mount_hole_d:.1f} (mate ref)"
     )
     if abs(lx - overall_length) > DIM_TOL:
         raise RuntimeError(f"BB.x {lx:.2f} != overall_length {overall_length} ±{DIM_TOL}")
-    if abs(ly - shaft_depth) > DIM_TOL:
-        raise RuntimeError(f"BB.y {ly:.2f} != shaft_depth {shaft_depth} ±{DIM_TOL}")
-    if abs(lz - flange_width) > DIM_TOL:
-        raise RuntimeError(f"BB.z {lz:.2f} != flange_width {flange_width} ±{DIM_TOL}")
+    if abs(ly - flange_width) > DIM_TOL:
+        raise RuntimeError(f"BB.y {ly:.2f} != flange_width {flange_width} ±{DIM_TOL}")
+    if abs(lz - overall_height) > DIM_TOL:
+        raise RuntimeError(f"BB.z {lz:.2f} != overall_height {overall_height} ±{DIM_TOL}")
     if abs(float(bb.zmin)) > DIM_TOL:
         raise RuntimeError(f"base not near Z=0 (zmin={bb.zmin:.2f})")
 
     print(
         f"ASSERT PASS: valid=True volume={vol:.3f} mm^3 "
-        f"BB=({lx:.2f},{ly:.2f},{lz:.2f}) framed"
+        f"BB=({lx:.2f},{ly:.2f},{lz:.2f}) flange-mount framed"
     )
 
 

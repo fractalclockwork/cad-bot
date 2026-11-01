@@ -21,8 +21,11 @@ Scaffold: `./scripts/new_assembly.sh <name>` (from `_template/`).
 3. Export `output/<assy>/<assy>.step` and `.stl` (DXF not required).
 4. Run `PART=<assy> ./scripts/run_pipeline.sh` — resolves `assemblies/` when not in `parts/`.
 
-## Exemplar
+## Exemplars
 
-[`plate_kp08_shaft/`](plate_kp08_shaft/) — plate_100x150x5 + 2× kp08 + shaft_8x150.
+| Mount | Assembly |
+| --- | --- |
+| Pillow | [`plate_kp08_shaft/`](plate_kp08_shaft/) — plate + 2× kp08 + shaft_8x150 |
+| Flange thru-plate | [`plate_mcm_1434k33_shaft/`](plate_mcm_1434k33_shaft/) — plate + mcm_1434k33 + shaft_8x100 |
 
-See **`skill_6_assembly_workflow`**.
+Mate conflicts: measure axes, then **human A/B** with only valid options — see **`skill_6_assembly_workflow`**.

@@ -20,6 +20,7 @@ Checklists: [`CONTRIBUTING.md`](CONTRIBUTING.md).
 export PART=kp08
 PART=my_part ./scripts/run_pipeline.sh --skip-human
 PART=plate_kp08_shaft ./scripts/run_pipeline.sh --skip-human
+PART=plate_mcm_1434k33_shaft ./scripts/run_pipeline.sh --skip-human
 ```
 
 | Resolve | Path |
@@ -38,3 +39,4 @@ PART=plate_kp08_shaft ./scripts/run_pipeline.sh --skip-human
 - Required artifacts: STEP + STL (DXF not a gate)
 - Archive human reviews under `docs/reviews/`
 - Assemblies: `load_part_module` + explicit mates — see skill_6
+- Assemblies: classify pillow vs flange (measure bore vs mount axes) **before** mates; if intent conflicts with geometry, **stop and ask** human A/B with only valid options + plate cutouts (skill_6 human conflict resolution)

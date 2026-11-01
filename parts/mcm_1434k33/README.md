@@ -12,13 +12,15 @@ vendor/mcmaster/1434K33_Mounted Roller Bearing with Two-Bolt Flange.STEP
 
 See [`vendor/mcmaster/README.md`](../../vendor/mcmaster/README.md) and `skill_7_mcmaster_to_cadquery`.
 
-## Axes (after framing)
+## Axes (after framing — flange-mount)
 
 | Axis | Meaning |
 | --- | --- |
 | X | Flange long / bolt pitch |
-| Y | Shaft / bearing |
-| Z | Flange short (Zmin ≈ 0) |
+| Y | Flange short (mount plane) |
+| Z | Shaft / bore (mount face Zmin ≈ 0) |
+
+This is **not** the pillow-block convention (Y = shaft).
 
 ## Run
 

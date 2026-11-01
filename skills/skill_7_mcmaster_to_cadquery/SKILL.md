@@ -100,8 +100,15 @@ In `build_part()`:
    download name), then `<PartNumber>.step` (repo-relative and `/work/…`).
 2. Raise a clear `FileNotFoundError` if missing (point at manual download steps).
 3. `shape = cq.importers.importStep(str(path))`
-4. Apply a documented **frame transform** so axes match repo convention
-   (typically Y = shaft/bore, Z = up, X = base length / bolt pitch).
+4. Apply a documented **frame transform** for the mount type (measure bore vs
+   mount-hole axes first — never force a flange STEP into Y=shaft when
+   bolts ∥ bore):
+
+   | Mount type | X | Y | Z |
+   | --- | --- | --- | --- |
+   | Pillow / base-mount (e.g. 3971N31) | bolt pitch / base length | **shaft / bore** | up from mount face |
+   | Two-bolt flange (e.g. 1434K33) | bolt pitch / flange long | flange short (mount plane) | **shaft / bore**, mount face Z≈0 |
+
 5. Return a `cq.Workplane` suitable for exporters.
 
 ### 5. Assert + export
@@ -135,10 +142,14 @@ PART=mcm_<partnum_lower> ./scripts/open_gallery.sh
 - [ ] Pipeline A–D PASS
 - [ ] `git status` shows no vendor STEP tracked
 
-## Exemplar
+## Exemplars
 
-`parts/mcm_3971n31/` — [3971N31](https://www.mcmaster.com/3971N31/) ready-mount pillow-block housing.
+| Mount | PART | Catalog |
+| --- | --- | --- |
+| Pillow / base-mount | `parts/mcm_3971n31/` | [3971N31](https://www.mcmaster.com/3971N31/) ready-mount housing |
+| Two-bolt flange | `parts/mcm_1434k33/` | [1434K33](https://www.mcmaster.com/1434K33/) mounted roller bearing |
 
 ## Related
 
-`skill_1`–`skill_4`; `skill_5` for scratch geometry; `skill_6` for assemblies.
+`skill_1`–`skill_4`; `skill_5` for scratch geometry; `skill_6` for assemblies
+(pre-mate gate + human conflict resolution).

@@ -15,6 +15,7 @@ Interactive 3D in the gallery is an **aid** — Phase E still uses orthographic 
 ```bash
 PART=kp08 ./scripts/run_pipeline.sh --skip-human
 PART=plate_kp08_shaft ./scripts/run_pipeline.sh --skip-human
+PART=plate_mcm_1434k33_shaft ./scripts/run_pipeline.sh --skip-human
 ```
 
 ## Part lessons (KP08)
@@ -26,6 +27,17 @@ PART=plate_kp08_shaft ./scripts/run_pipeline.sh --skip-human
 
 View intent (KP08): front → bore as circle; top → two bolt holes; right → bore along Y.
 
+## Human conflict resolution (assemblies)
+
+Auto A–D does not catch wrong-axis mates. **Humans** resolve mate conflicts:
+
+1. Measure bore vs mount-hole axes; classify pillow vs flange.
+2. If ambiguous or intent conflicts with geometry → stop coding; ask 1–2 A/B with **only valid** options; list plate cutouts in the same turn.
+3. Lock chosen mates in `drawings/dims.md`, then implement.
+4. Gallery / Phase E orientation fail → new conflict cycle (re-ask; never silent-guess).
+
+See skill_6 **Human conflict resolution**.
+
 ## Assembly lessons (`plate_kp08_shaft`)
 
 - Compose only via `parts/*/build_part()` + explicit `cq.Location` mates.
@@ -33,6 +45,14 @@ View intent (KP08): front → bore as circle; top → two bolt holes; right → 
 - Shaft through bore: `Z = plate_thickness + base_center_height`.
 - Assert volume ≈ sum of part volumes; BB matches envelope.
 - New solid instance per occurrence (do not reuse one Shape twice in `cq.Assembly`).
+
+## Assembly lessons (`plate_mcm_1434k33_shaft` — flange)
+
+- Measure bore vs mount-hole axes **before** A/B mate questions (skill_6 pre-mate gate).
+- Flange units have shaft ∥ bolts: flange on a plate ⇒ shaft **through** that plate (along Z), not parallel to it.
+- Plate needs bolt holes **and** shaft (or hub) clearance; do not copy pillow-block hole-only plates.
+- Do not offer geometrically impossible A/B options (e.g. flange bolted to plate with shaft ∥ plate).
+- First wrong mate (shaft ∥ plate) was rejected in human/gallery review; corrected via a new A/B cycle to thru-plate.
 
 See `skill_6_assembly_workflow`.
 

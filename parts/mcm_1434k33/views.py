@@ -14,7 +14,7 @@ class ViewSpec:
     criteria: tuple[str, ...]
 
 
-# X = flange long / bolts, Y = shaft, Z = flange short
+# X = flange long / bolts, Y = flange short, Z = shaft (flange-mount)
 VIEWS: tuple[ViewSpec, ...] = (
     ViewSpec(
         key="iso",
@@ -23,19 +23,19 @@ VIEWS: tuple[ViewSpec, ...] = (
         kind="stl3d",
         criteria=(
             "Two-bolt flange housing silhouette is visible",
-            "Bearing / shaft opening faces along Y",
-            "Flange elongated along X",
+            "Bearing / shaft opening faces along Z (up)",
+            "Flange elongated along X in the horizontal plane",
             "Part is not clipped; coherent solid",
         ),
     ),
     ViewSpec(
         key="front",
         filename="front.png",
-        title="Front (XZ) — looking along shaft",
+        title="Front (XZ)",
         kind="stl3d",
         criteria=(
             "Flange outline with two mount regions along X",
-            "Shaft bore appears as a circle (axis into the page)",
+            "Housing sits on Z≈0; height along shaft visible",
             "Geometry is a solid flange housing, not an empty frame",
             "No obvious mesh explosion",
         ),
@@ -43,24 +43,24 @@ VIEWS: tuple[ViewSpec, ...] = (
     ViewSpec(
         key="top",
         filename="top.png",
-        title="Top (XY)",
+        title="Top (XY) — looking along shaft",
         kind="stl3d",
         criteria=(
-            "Flange elongated along X",
-            "Shaft direction along Y",
-            "Housing footprint clear",
+            "Flange footprint in XY with elongation along X",
+            "Shaft bore appears as a circle (axis into the page)",
+            "Two mount holes along X",
             "Coherent solid",
         ),
     ),
     ViewSpec(
         key="right",
         filename="right.png",
-        title="Right (YZ) — side of shaft",
+        title="Right (YZ)",
         kind="stl3d",
         criteria=(
-            "Shaft / bearing depth along Y is visible",
-            "Flange thickness / body in Z",
-            "Bore runs left/right (along Y), not into the page",
+            "Shaft / bearing height along Z is visible",
+            "Flange width in Y",
+            "Bore runs vertically (along Z), not left/right",
             "Geometry is coherent",
         ),
     ),
