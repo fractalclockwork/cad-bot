@@ -14,7 +14,7 @@ for arg in "$@"; do
     --skip-human) SKIP_HUMAN=1 ;;
     -h|--help)
       echo "Usage: PART=<name> $0 [--skip-human]"
-      echo "  PART           part directory under parts/ (default: kp08)"
+      echo "  PART           part under parts/ or assembly under assemblies/ (default: kp08)"
       echo "  --skip-human   skip interactive Phase E (CI / auto checks only)"
       exit 0
       ;;
@@ -38,12 +38,20 @@ if ! docker info >/dev/null 2>&1; then
   exit 1
 fi
 
-if [[ ! -d "$ROOT/parts/$PART" ]]; then
-  echo "ERROR: parts/$PART missing. Scaffold with ./scripts/new_part.sh $PART" >&2
+MODEL=""
+KIND=""
+if [[ -d "$ROOT/parts/$PART" ]]; then
+  MODEL="/work/parts/${PART}/model.py"
+  KIND="part"
+elif [[ -d "$ROOT/assemblies/$PART" ]]; then
+  MODEL="/work/assemblies/${PART}/model.py"
+  KIND="assembly"
+else
+  echo "ERROR: PART=$PART not found under parts/ or assemblies/" >&2
   exit 1
 fi
 
-echo "==> PART=$PART"
+echo "==> PART=$PART ($KIND)"
 echo "==> Ensuring image cad-bot:latest"
 docker compose build
 
@@ -51,7 +59,7 @@ echo "==> Phase A: environment preflight"
 compose_run uv run python /work/scripts/preflight.py
 
 echo "==> Phase B: CadQuery geometry + export"
-compose_run uv run python "/work/parts/${PART}/model.py" "/work/output/${PART}"
+compose_run uv run python "$MODEL" "/work/output/${PART}"
 
 echo "==> Phase C: artifact verification matrix"
 compose_run uv run python /work/scripts/assert_artifacts.py

@@ -1,8 +1,8 @@
 ---
 name: skill_3_render_preview
 description: >-
-  Headless multi-view PNG/SVG previews from part STL/DXF inside Docker.
-  Reads parts/$PART/views.py; writes output/$PART/previews/.
+  Headless STL multi-view PNGs plus interactive gallery (Three.js model.stl)
+  for a part or assembly. Reads views.py under parts/ or assemblies/.
 ---
 
 # Render Preview Workflow
@@ -12,30 +12,34 @@ Use after CadQuery exports (and preferably artifact asserts). Docker + `uv run` 
 ## Inputs
 
 - `output/<PART>/<PART>.stl`
-- `output/<PART>/<PART>_profile.dxf`
-- `parts/<PART>/views.py`
+- `parts/<PART>/views.py` **or** `assemblies/<PART>/views.py` (`stl3d` views)
 
 ## How to run
 
 ```bash
-PART=kp08 docker compose run --rm -e PART cad uv run python /work/scripts/render_previews.py
-PART=kp08 docker compose run --rm -e PART cad uv run python /work/scripts/assert_previews.py
+PART=<name> docker compose run --rm -e PART cad uv run python /work/scripts/render_previews.py
+PART=<name> docker compose run --rm -e PART cad uv run python /work/scripts/assert_previews.py
 ```
+
+Or via `./scripts/run_pipeline.sh` Phase D.
 
 ## Outputs (`output/<PART>/previews/`)
 
-Filenames come from `views.py` (KP08: `iso.png`, `front.png`, `top.png`, `right.png`, `profile.png`).
-Also `<PART>_profile.svg` and `index.html`.
+| Artifact | Notes |
+| --- | --- |
+| `iso.png`, `front.png`, … | From `stl3d` entries in `views.py` |
+| `model.stl` | Copy for interactive viewer |
+| `index.html` | Gallery: Three.js orbit + orthographic cards |
 
-## Auto pass criteria
+## Auto pass criteria (`assert_previews.py`)
 
-- Each view PNG: magic, size ≥ 15KB, non-white ratio ≥ 1%
-- SVG has `<path>`; gallery HTML present
+- Each **stl3d** PNG: magic, size ≥ 15KB, non-white ratio ≥ 1%
+- `model.stl` and `index.html` present
 
 ## Gallery on host
 
 ```bash
-PART=kp08 ./scripts/open_gallery.sh   # http://127.0.0.1:8765/
+PART=<name> ./scripts/open_gallery.sh   # http://127.0.0.1:8765/
 ```
 
-Next: `skill_4_human_verify`.
+Prefer this over `file://` (Snap Firefox). Next: `skill_4_human_verify`.

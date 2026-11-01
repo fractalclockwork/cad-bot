@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify CadQuery pipeline artifacts under ./output/<PART>/."""
+"""Verify CadQuery pipeline artifacts under ./output/<PART>/ (STEP + STL)."""
 from __future__ import annotations
 
 import struct
@@ -32,25 +32,9 @@ def count_stl_facets(path: Path) -> int:
     return int(n)
 
 
-def check_dxf(path: Path) -> int:
-    text = path.read_text(encoding="utf-8", errors="ignore")
-    if "SECTION" not in text and "0\nSECTION" not in text and "ENTITIES" not in text:
-        if "LINE" not in text and "CIRCLE" not in text and "LWPOLYLINE" not in text and "SPLINE" not in text:
-            if len(text) < 20:
-                fail(f"DXF header/content invalid: {path}")
-    entities = 0
-    for token in ("LINE", "CIRCLE", "ARC", "LWPOLYLINE", "POLYLINE", "SPLINE", "POINT", "ELLIPSE"):
-        entities += text.count(token)
-    if entities <= 0:
-        entities = text.count("VERTEX") + text.count("AcDb")
-    if entities <= 0:
-        fail(f"DXF has no recognizable 2D entities: {path}")
-    return entities
-
-
 def main() -> None:
     paths = ensure_part_layout(resolve())
-    step, stl, dxf = paths.step, paths.stl, paths.profile_dxf
+    step, stl = paths.step, paths.stl
 
     check_exists(step)
     head = step.read_bytes()[:64]
@@ -64,10 +48,6 @@ def main() -> None:
     if facets <= 0:
         fail(f"STL has zero facets: {stl}")
     print(f"OK {stl.name} ({stl.stat().st_size} bytes, facets={facets})")
-
-    check_exists(dxf)
-    entities = check_dxf(dxf)
-    print(f"OK {dxf.name} ({dxf.stat().st_size} bytes, entity_tokens={entities})")
 
     print("ARTIFACT MATRIX PASS")
 

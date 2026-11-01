@@ -1,6 +1,6 @@
-# Reference: drawing → CadQuery
+# Reference: drawing / spec → CadQuery
 
-## Suggested file layout for a new part
+## Suggested file layout
 
 ```
 parts/<part_name>/
@@ -8,43 +8,35 @@ parts/<part_name>/
   model.py
   views.py
   drawings/
-    source.png          # or multiple views
-    dims.md             # dimension table
+    source.png          # optional
+    dims.md
 output/<part_name>/
   <part_name>.step
   <part_name>.stl
-  <part_name>_profile.dxf   # only if 2D intent is clear
   previews/
 ```
 
 Scaffold: `./scripts/new_part.sh <part_name>`
+
+DXF profiles are **not** required by the pipeline.
 
 ## dims.md template
 
 ```markdown
 # <part_name> dimensions
 
-Source: parts/<part_name>/drawings/source.png
+Source: parts/<part_name>/drawings/… or written spec
 Units: mm
 
 | Label | Meaning | Value | Param |
 | --- | --- | --- | --- |
 | a | overall length |  | `overall_length` |
-| e | hole center distance |  | `bolt_hole_pitch` |
-| s | hole diameter |  | `bolt_hole_diameter` |
-| h | center height |  | `base_center_height` |
-| g | base thickness |  | `base_thickness` |
-| w | overall height |  | `overall_height` |
 
 ## Axis convention
 
 - X:
 - Y:
 - Z:
-
-## Derived
-
-- flange_radius = (a - e) / 2   # only if holes centered in rounded ends
 ```
 
 ## Pipeline
@@ -56,4 +48,4 @@ PART=<part_name> ./scripts/open_gallery.sh
 
 ## Assemblies
 
-See `assemblies/README.md`. Keep solids in `parts/`; compose in `assemblies/<name>/model.py`.
+Use `skill_6_assembly_workflow` and `./scripts/new_assembly.sh`.

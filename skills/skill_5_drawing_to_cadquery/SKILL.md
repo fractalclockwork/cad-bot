@@ -1,77 +1,63 @@
 ---
 name: skill_5_drawing_to_cadquery
 description: >-
-  Turn images of dimensioned mechanical drawings into parametric CadQuery parts
-  under parts/<name>/ (Docker + uv). Use when the user attaches or points at a
-  drawing photo/PNG/PDF page, asks to model from a print, or extract dims.
+  Author a new CadQuery part under parts/<name>/ from dimensioned drawings or a
+  written spec (Docker + uv). Use for new solids; for assemblies use skill_6.
 ---
 
-# Drawing Image → CadQuery Part / Assembly
+# Drawing / Spec → CadQuery Part
 
-Build parametric CadQuery under `parts/<name>/`, then validate via the PART-aware pipeline.
+Build under `parts/<name>/`, then validate with the PART-aware pipeline.
 
-**Never** install CadQuery on the host. Use `docker compose` + `uv run`.
+**Never** install CadQuery on the host.
 
 ## When to use
 
-- Dimensioned drawing attached; “model this” / “match this drawing”
-- Starting a **new** part (not only KP08)
+- Dimensioned drawing attached, or clear numeric **spec** (e.g. Ø8×150 shaft)
+- New **part** (not assembly → `skill_6`)
 
 ## Inputs
 
 | Input | Required | Notes |
 | --- | --- | --- |
-| Drawing images | yes | Orthographic views with dim labels |
+| Drawing images **or** written dims | yes | Spec-driven: still fill `dims.md` |
 | Part name | yes | lowercase; `PART=<name>` |
 | Units | default mm | Confirm if inch |
 
-Save images under `parts/<name>/drawings/`.
+Save images under `parts/<name>/drawings/` when present.
 
 ## Workflow
 
-### 1. Read the drawing(s)
+### 1. Read source
 
-Identify views, holes/bores, envelopes, center heights. **Do not invent missing dims.**
+Drawing: views, holes/bores, envelopes. Spec: table of params. **Do not invent missing dims.**
 
 ### 2. Dimension table
 
-Write `parts/<name>/drawings/dims.md` **before** CadQuery:
-
-| Drawing label | Meaning | Value | Maps to param |
-| --- | --- | --- | --- |
-| e | mounting hole C–C | 42 | `bolt_hole_pitch` |
-
-Rules (from KP08): hole pitch ≠ overall length unless the drawing says so; keep letter labels in asserts.
+Write `parts/<name>/drawings/dims.md` **before** CadQuery (drawing- or spec-driven).
 
 ### 3. Lock axes
 
-Document X/Y/Z in `model.py` and `views.py` before modeling. Typical: X = bolt pitch, Y = shaft, Z = up.
+Document X/Y/Z in `model.py` and `views.py` before modeling.
 
-### 4. Author CadQuery
+### 4. Author
 
 ```bash
-./scripts/new_part.sh <name>   # or edit parts/<name>/
+./scripts/new_part.sh <name>
 ```
 
-Implement `parts/<name>/model.py`:
+Implement `build_part()`, `assert_geometry()`, export **STEP + STL**.
 
-1. Top-level params from the dim table
-2. Fluent CadQuery only
-3. `assert_geometry()` for drawing-critical dims
-4. Export `output/<name>/<name>.{step,stl}` and intentional `_profile.dxf`
-
-Assemblies: see `assemblies/README.md` — compose `parts/*` solids with explicit transforms.
-
-### 5. Auto validation
+### 5. Validate
 
 ```bash
 PART=<name> ./scripts/run_pipeline.sh --skip-human
+PART=<name> ./scripts/open_gallery.sh
 ```
 
 ### 6. Human verification
 
-Update `parts/<name>/views.py` criteria (bore appearance per view). Run `skill_4_human_verify`.
-Archive fails under `docs/reviews/`. Note lessons in `docs/verification.md`.
+Update `views.py` criteria; `skill_4` when signing off.
 
 ## Anti-patterns (KP08)
 
@@ -79,17 +65,15 @@ Archive fails under `docs/reviews/`. Note lessons in `docs/verification.md`.
 | --- | --- |
 | Overall length as hole pitch | Read **e** separately from **a** |
 | Shaft on wrong axis | Lock Y = shaft first |
-| Center hole on XY mount DXF | Flange holes only |
-| Auto ink checks only | Always plan human Phase E |
+| Auto ink checks only | Plan human Phase E for orientation |
 
 ## Checklist
 
-- [ ] `parts/<name>/drawings/dims.md` + images
-- [ ] Axes in docstring + views
-- [ ] `model.py` asserts + exports
-- [ ] `PART=<name> ./scripts/run_pipeline.sh --skip-human`
-- [ ] Human review when signing off
+- [ ] `drawings/dims.md` (+ images if any)
+- [ ] Axes documented
+- [ ] STEP/STL via pipeline A–D
+- [ ] Assemblies deferred to skill_6
 
 ## Related
 
-`skill_1` … `skill_4`; exemplar `parts/kp08/`.
+`skill_1`–`skill_4`; `skill_6` for assemblies; exemplar `parts/kp08/`.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify headless preview artifacts under ./output/<PART>/previews."""
+"""Verify headless preview artifacts under ./output/<PART>/previews (STL views)."""
 from __future__ import annotations
 
 import sys
@@ -13,7 +13,7 @@ from part_config import ensure_part_layout, load_views, resolve  # noqa: E402
 
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 MIN_NON_WHITE_RATIO = 0.01
-MIN_PNG_BYTES = 15_000
+MIN_PNG_BYTES_STL = 15_000
 
 
 def fail(msg: str) -> None:
@@ -37,16 +37,20 @@ def main() -> None:
     if not previews.is_dir():
         fail(f"previews directory missing: {previews}")
 
-    for view in views_mod.VIEWS:
+    stl_views = [v for v in views_mod.VIEWS if v.kind == "stl3d"]
+    if not stl_views:
+        fail(f"no stl3d views defined in {paths.views}")
+
+    for view in stl_views:
         path = previews / view.filename
         if not path.is_file() or path.stat().st_size <= 0:
             fail(f"missing/empty preview for view '{view.key}': {path}")
         if path.read_bytes()[:8] != PNG_MAGIC:
             fail(f"not a PNG for view '{view.key}': {path}")
         size = path.stat().st_size
-        if size < MIN_PNG_BYTES:
+        if size < MIN_PNG_BYTES_STL:
             fail(
-                f"view '{view.key}' PNG too small ({size} bytes < {MIN_PNG_BYTES}); "
+                f"view '{view.key}' PNG too small ({size} bytes < {MIN_PNG_BYTES_STL}); "
                 "likely blank/white-on-white"
             )
         ratio, non_white = ink_stats(path)
@@ -59,13 +63,10 @@ def main() -> None:
             f"OK {view.key}: {path.name} ({size} bytes, non_white_ratio={ratio:.3f})"
         )
 
-    svg = paths.profile_svg
-    if not svg.is_file() or svg.stat().st_size <= 0:
-        fail(f"missing/empty profile SVG: {svg}")
-    svg_text = svg.read_text(encoding="utf-8", errors="ignore")
-    if "<path" not in svg_text:
-        fail("profile SVG has no path elements")
-    print(f"OK {svg.name} ({svg.stat().st_size} bytes)")
+    model_stl = previews / "model.stl"
+    if not model_stl.is_file() or model_stl.stat().st_size <= 0:
+        fail(f"missing gallery model.stl: {model_stl}")
+    print(f"OK model.stl ({model_stl.stat().st_size} bytes)")
 
     index = previews / "index.html"
     if not index.is_file() or index.stat().st_size <= 0:

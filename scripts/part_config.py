@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Resolve PART env → part paths and artifact names (shared by pipeline scripts)."""
+"""Resolve PART env → part or assembly paths and artifact names."""
 from __future__ import annotations
 
 import importlib.util
@@ -13,7 +13,8 @@ from types import ModuleType
 @dataclass(frozen=True)
 class PartPaths:
     name: str
-    root: Path  # parts/<name>
+    kind: str  # "part" | "assembly"
+    root: Path
     model: Path
     views: Path
     drawings: Path
@@ -58,14 +59,28 @@ def work_root() -> Path:
 def resolve(name: str | None = None) -> PartPaths:
     n = name or part_name()
     root = work_root()
-    part_root = root / "parts" / n
     output = root / "output" / n
+
+    part_root = root / "parts" / n
+    assy_root = root / "assemblies" / n
+    if part_root.is_dir():
+        kind = "part"
+        target = part_root
+    elif assy_root.is_dir():
+        kind = "assembly"
+        target = assy_root
+    else:
+        # Prefer parts/ in the returned paths for clearer errors
+        kind = "part"
+        target = part_root
+
     return PartPaths(
         name=n,
-        root=part_root,
-        model=part_root / "model.py",
-        views=part_root / "views.py",
-        drawings=part_root / "drawings",
+        kind=kind,
+        root=target,
+        model=target / "model.py",
+        views=target / "views.py",
+        drawings=target / "drawings",
         output=output,
         previews=output / "previews",
     )
@@ -90,9 +105,25 @@ def ensure_part_layout(paths: PartPaths | None = None) -> PartPaths:
     p = paths or resolve()
     if not p.root.is_dir():
         raise SystemExit(
-            f"Part directory missing: {p.root}\n"
-            f"Scaffold with: ./scripts/new_part.sh {p.name}"
+            f"PART={p.name} not found under parts/ or assemblies/\n"
+            f"Scaffold a part with: ./scripts/new_part.sh {p.name}"
         )
     if not p.model.is_file():
         raise SystemExit(f"Missing model: {p.model}")
     return p
+
+
+def load_part_module(part_name_str: str) -> ModuleType:
+    """Load parts/<name>/model.py for assembly composition."""
+    path = work_root() / "parts" / part_name_str / "model.py"
+    if not path.is_file():
+        raise SystemExit(f"Missing part model: {path}")
+    spec = importlib.util.spec_from_file_location(f"part_model_{part_name_str}", path)
+    if spec is None or spec.loader is None:
+        raise SystemExit(f"Cannot load part model: {path}")
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = mod
+    spec.loader.exec_module(mod)
+    if not hasattr(mod, "build_part"):
+        raise SystemExit(f"{path} must define build_part()")
+    return mod

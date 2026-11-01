@@ -2,23 +2,27 @@
 
 Multi-body models compose solids from [`parts/`](../parts/).
 
-## Planned layout
+## Layout
 
 ```
 assemblies/<name>/
   README.md
-  model.py          # imports / places parts/*.model solids
-  views.py          # assembly preview criteria
-  drawings/         # assembly views / BOM notes
+  model.py
+  views.py
+  drawings/dims.md
 ```
 
-## Contract (for the next assembly)
+Scaffold: `./scripts/new_assembly.sh <name>` (from `_template/`).
 
-1. Keep each solid as a part under `parts/<part>/model.py` with `build_part()`.
-2. Assembly `model.py` imports those builders (or loads STEP) and applies explicit
-   transforms; document mates in comments.
-3. Export `output/<assy>/<assy>.step` (compound) and optional per-part copies.
-4. Run with `PART=<assy>` only after assembly scripts share the part pipeline
-   contract — until then, prefer composing parts manually in a dedicated module.
+## Contract
 
-No assemblies ship in v1; this directory reserves the convention.
+1. Keep each solid under `parts/<part>/model.py` with `build_part()`.
+2. Assembly loads builders via `part_config.load_part_module` and applies `cq.Location` mates; document in `drawings/dims.md`.
+3. Export `output/<assy>/<assy>.step` and `.stl` (DXF not required).
+4. Run `PART=<assy> ./scripts/run_pipeline.sh` — resolves `assemblies/` when not in `parts/`.
+
+## Exemplar
+
+[`plate_kp08_shaft/`](plate_kp08_shaft/) — plate_100x150x5 + 2× kp08 + shaft_8x150.
+
+See **`skill_6_assembly_workflow`**.

@@ -2,43 +2,50 @@
 name: skill_2_cadquery_workflow
 description: >-
   Generate, assert, and export a parametric CadQuery part inside Docker (uv run).
-  KP08 exemplar: parts/kp08/model.py → output/kp08/{step,stl,profile.dxf}.
+  Exemplars: parts/kp08, parts/shaft_8x150, parts/plate_100x150x5 → STEP + STL.
 ---
 
-# CadQuery Workflow (Primary)
+# CadQuery Workflow (Part)
 
-Use only after `skill_1_environment_preflight` passes. **Never** call host CadQuery — Docker + `uv run` only.
+Use after `skill_1_environment_preflight`. **Never** call host CadQuery.
 
-## Model layout
+## Layout
 
-- Part script: `parts/<PART>/model.py`
-- KP08 exemplar: `parts/kp08/model.py` (dims in `parts/kp08/README.md` / `drawings/dims.md`)
-- Axes (KP08): **X** = bolt pitch, **Y** = shaft, **Z** = up
-- Profile DXF = intended 2D plane only (KP08: top mount, two flange holes)
+- Script: `parts/<PART>/model.py` (`build_part`, `assert_geometry`, export)
+- Scaffold: `./scripts/new_part.sh <name>`
+- Dims/axes: `parts/<PART>/drawings/dims.md` + README
+- Simple exemplars: `shaft_8x150`, `plate_100x150x5`; rich exemplar: `kp08`
 
 ## How to run
 
+Prefer the full pipeline:
+
 ```bash
-PART=kp08 docker compose run --rm -e PART \
-  cad uv run python /work/parts/kp08/model.py /work/output/kp08
+PART=<name> ./scripts/run_pipeline.sh --skip-human
 ```
 
-Or full pipeline Phase B via `./scripts/run_pipeline.sh`.
+Or Phase B alone:
+
+```bash
+PART=<name> docker compose run --rm -e PART \
+  cad uv run python /work/parts/<name>/model.py /work/output/<name>
+```
 
 ## Assertions (inside the model)
 
 - `shape.val().isValid()`; volume > 0; non-empty BoundingBox
-- Drawing-critical dims within tolerance
+- Drawing- or spec-critical dims within tolerance
 
-## Exports
+## Exports (required)
 
 | File | Path |
 | --- | --- |
 | STEP | `output/<PART>/<PART>.step` |
 | STL | `output/<PART>/<PART>.stl` |
-| Profile DXF | `output/<PART>/<PART>_profile.dxf` |
+
+DXF profile export is **not** part of the default verification path (optional leftover in some exemplars).
 
 ## On failure
 
 - Invalid solid → re-check selectors/booleans
-- Empty export → regenerate; check `PART` output dir
+- Empty export → check `PART` output dir

@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from part_config import part_name, resolve  # noqa: E402
+from part_config import ensure_part_layout, part_name, resolve  # noqa: E402
 
 
 def fail(msg: str, *, remediation: str) -> None:
@@ -61,19 +61,29 @@ def main() -> None:
         )
     report["checks"].append({"name": "parts_readable", "path": str(parts), "ok": True})
 
+    assemblies = Path("/work/assemblies")
+    if assemblies.is_dir():
+        report["checks"].append(
+            {"name": "assemblies_readable", "path": str(assemblies), "ok": True}
+        )
+
     name = part_name()
-    paths = resolve(name)
-    if not paths.root.is_dir():
+    try:
+        paths = ensure_part_layout(resolve(name))
+    except SystemExit as exc:
         fail(
-            f"PART={name} directory missing: {paths.root}",
-            remediation=f"Create with ./scripts/new_part.sh {name} or set PART to an existing part",
+            str(exc) if str(exc) else f"PART={name} not resolved",
+            remediation="Create under parts/ or assemblies/, or fix PART",
         )
-    if not paths.model.is_file():
-        fail(
-            f"PART={name} model missing: {paths.model}",
-            remediation="Add model.py under the part directory",
-        )
-    report["checks"].append({"name": "part", "part": name, "model": str(paths.model), "ok": True})
+    report["checks"].append(
+        {
+            "name": "target",
+            "part": name,
+            "kind": paths.kind,
+            "model": str(paths.model),
+            "ok": True,
+        }
+    )
 
     print(json.dumps(report, indent=2))
     print("PREFLIGHT PASS")

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Headless preview renders for part artifacts (STL multi-view + DXF → PNG/SVG)."""
+"""Headless preview renders for part/assembly artifacts (STL + DXF → PNG/SVG + gallery)."""
 from __future__ import annotations
 
+import shutil
 import sys
 from pathlib import Path
 
@@ -73,16 +74,25 @@ def _plot_mesh(ax, mesh: trimesh.Trimesh, elev: float, azim: float, title: str) 
     ax.set_facecolor("white")
 
 
+def _load_mesh(stl_path: Path) -> trimesh.Trimesh:
+    loaded = trimesh.load(stl_path, force="mesh")
+    if isinstance(loaded, trimesh.Scene):
+        geoms = [g for g in loaded.geometry.values() if isinstance(g, trimesh.Trimesh)]
+        if not geoms:
+            fail(f"STL scene has no meshes: {stl_path}")
+        loaded = trimesh.util.concatenate(geoms)
+    if not isinstance(loaded, trimesh.Trimesh):
+        fail(f"Could not load triangle mesh from {stl_path}")
+    if loaded.is_empty or len(loaded.faces) == 0:
+        fail(f"STL has no faces: {stl_path}")
+    return loaded
+
+
 def render_stl_views(stl_path: Path, preview_dir: Path, views) -> list[Path]:
     if not stl_path.is_file() or stl_path.stat().st_size <= 0:
         fail(f"STL missing or empty: {stl_path}")
 
-    mesh = trimesh.load(stl_path, force="mesh")
-    if not isinstance(mesh, trimesh.Trimesh):
-        fail(f"Could not load triangle mesh from {stl_path}")
-    if mesh.is_empty or len(mesh.faces) == 0:
-        fail(f"STL has no faces: {stl_path}")
-
+    mesh = _load_mesh(stl_path)
     written: list[Path] = []
     for view in views:
         if view.kind != "stl3d":
@@ -115,7 +125,6 @@ def render_dxf(dxf_path: Path, preview_dir: Path, part_name: str, views) -> list
 
     dxf_views = [v for v in views if v.kind == "dxf2d"]
     if not dxf_views:
-        # Still emit SVG for tooling even if part has no dxf2d gallery card
         png_name = "profile.png"
         title = f"{part_name} profile (DXF)"
     else:
@@ -156,9 +165,18 @@ def render_dxf(dxf_path: Path, preview_dir: Path, part_name: str, views) -> list
     return written
 
 
+def stage_model_stl(stl_path: Path, preview_dir: Path) -> Path:
+    dest = preview_dir / "model.stl"
+    shutil.copy2(stl_path, dest)
+    print(f"MODEL STL OK: {dest} ({dest.stat().st_size} bytes)")
+    return dest
+
+
 def write_gallery(preview_dir: Path, part_name: str, views) -> Path:
     cards = []
     for view in views:
+        if view.kind != "stl3d":
+            continue
         criteria = "".join(f"<li>{c}</li>" for c in view.criteria)
         cards.append(
             f"""<figure id="{view.key}">
@@ -180,6 +198,14 @@ def write_gallery(preview_dir: Path, part_name: str, views) -> Path:
     body {{ font-family: ui-sans-serif, system-ui, sans-serif; margin: 1.5rem; background: #f4f5f7; color: #1a1a1a; }}
     h1 {{ font-size: 1.4rem; margin-bottom: 0.25rem; }}
     p {{ color: #555; margin-top: 0; }}
+    #viewer-wrap {{
+      background: #fff; border: 1px solid #ddd; border-radius: 8px;
+      margin: 0 0 1.25rem; overflow: hidden;
+    }}
+    #viewer-wrap header {{
+      padding: 0.6rem 0.85rem; border-bottom: 1px solid #eee; font-size: 0.9rem;
+    }}
+    #viewer {{ width: 100%; height: 420px; display: block; background: #e8eaed; }}
     .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }}
     figure {{ margin: 0; background: #fff; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }}
     img {{ display: block; width: 100%; height: auto; background: #fff; }}
@@ -190,10 +216,100 @@ def write_gallery(preview_dir: Path, part_name: str, views) -> Path:
 </head>
 <body>
   <h1>{part_name} preview gallery</h1>
-  <p>Auto-generated previews. Complete human review with <code>PART={part_name} ./scripts/human_verify.sh</code>.</p>
+  <p>Drag to orbit, scroll to zoom. Orthographic views below are used for human sign-off
+     (<code>PART={part_name} ./scripts/human_verify.sh</code>).</p>
+  <section id="viewer-wrap">
+    <header><strong>Interactive 3D</strong> — <code>model.stl</code></header>
+    <canvas id="viewer"></canvas>
+  </section>
   <div class="grid">
     {"".join(cards)}
   </div>
+  <script type="importmap">
+  {{
+    "imports": {{
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }}
+  }}
+  </script>
+  <script type="module">
+  import * as THREE from "three";
+  import {{ OrbitControls }} from "three/addons/controls/OrbitControls.js";
+  import {{ STLLoader }} from "three/addons/loaders/STLLoader.js";
+
+  const canvas = document.getElementById("viewer");
+  const renderer = new THREE.WebGLRenderer({{ canvas, antialias: true }});
+  renderer.setPixelRatio(window.devicePixelRatio || 1);
+  renderer.setClearColor(0xe8eaed);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 5000);
+  camera.position.set(120, 100, 140);
+
+  const controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const key = new THREE.DirectionalLight(0xffffff, 0.85);
+  key.position.set(80, 120, 60);
+  scene.add(key);
+
+  function fit(object) {{
+    const box = new THREE.Box3().setFromObject(object);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z) || 1;
+    const dist = maxDim * 1.8;
+    controls.target.copy(center);
+    camera.position.set(center.x + dist * 0.7, center.y + dist * 0.55, center.z + dist * 0.85);
+    camera.near = maxDim / 100;
+    camera.far = maxDim * 100;
+    camera.updateProjectionMatrix();
+    controls.update();
+  }}
+
+  function resize() {{
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / Math.max(h, 1);
+    camera.updateProjectionMatrix();
+  }}
+  window.addEventListener("resize", resize);
+  resize();
+
+  new STLLoader().load(
+    "model.stl",
+    (geometry) => {{
+      geometry.computeVertexNormals();
+      const material = new THREE.MeshStandardMaterial({{
+        color: 0xb8c4d4,
+        metalness: 0.15,
+        roughness: 0.55,
+      }});
+      const mesh = new THREE.Mesh(geometry, material);
+      // STL is often Z-up already (our CAD frame); Three default is Y-up — map Z-up → Three
+      mesh.rotation.x = -Math.PI / 2;
+      scene.add(mesh);
+      fit(mesh);
+    }},
+    undefined,
+    (err) => {{
+      console.error(err);
+      canvas.replaceWith(Object.assign(document.createElement("p"), {{
+        textContent: "Failed to load model.stl (serve via open_gallery.sh over http).",
+        style: "padding:1rem;color:#a00;",
+      }}));
+    }}
+  );
+
+  (function animate() {{
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }})();
+  </script>
 </body>
 </html>
 """
@@ -211,7 +327,8 @@ def main() -> None:
     preview_dir.mkdir(parents=True, exist_ok=True)
 
     render_stl_views(paths.stl, preview_dir, views)
-    render_dxf(paths.profile_dxf, preview_dir, paths.name, views)
+    stage_model_stl(paths.stl, preview_dir)
+    # DXF profile renders are not part of the default verification path.
     write_gallery(preview_dir, paths.name, views)
     print("RENDER PREVIEWS PASS")
 

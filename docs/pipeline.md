@@ -2,22 +2,22 @@
 
 Orchestrator: `PART=<name> ./scripts/run_pipeline.sh [--skip-human]`
 
-Default `PART=kp08`. Compose receives `PART` for every container step.
+Default `PART=kp08`. `PART` names a directory under `parts/` **or** `assemblies/` (`parts/` wins if both exist).
 
 ## Phases
 
 | Phase | Script | Pass rule |
 | --- | --- | --- |
-| A | `preflight.py` | uv, CadQuery, writable `output/`, `parts/<PART>/model.py` |
-| B | `parts/<PART>/model.py` | Valid solid, drawing-bound asserts, export |
-| C | `assert_artifacts.py` | `output/<PART>/{part}.step|.stl|{part}_profile.dxf` |
-| D | `render_previews.py` + `assert_previews.py` | PNG magic, size, ink ratio; SVG; gallery |
-| E | `human_verify.py` + `assert_human_review.py` | Every view `status=pass` (skipped with `--skip-human`) |
+| A | `preflight.py` | uv, CadQuery, writable `output/`, model under parts or assemblies |
+| B | `…/model.py` | Valid geometry, asserts, export STEP + STL |
+| C | `assert_artifacts.py` | `output/<PART>/{name}.step` and `{name}.stl` |
+| D | `render_previews.py` + `assert_previews.py` | stl3d PNGs; `model.stl`; gallery HTML |
+| E | `human_verify.py` + `assert_human_review.py` | Every view `status=pass` (skip with `--skip-human`) |
 
 ```
-parts/<name>/drawings  →  skill_5 (author)  →  parts/<name>/model.py
+parts/<name>/ or assemblies/<name>/
         ↓
-PART=name run_pipeline  →  output/<name>/artifacts + previews
+PART=name run_pipeline  →  output/<name>/ + previews/
         ↓
 skill_4 human verify    →  docs/reviews/<name>_…
 ```
@@ -26,14 +26,14 @@ skill_4 human verify    →  docs/reviews/<name>_…
 
 | Artifact | Path |
 | --- | --- |
-| STEP | `output/<part>/<part>.step` |
-| STL | `output/<part>/<part>.stl` |
-| Profile DXF | `output/<part>/<part>_profile.dxf` |
-| Previews | `output/<part>/previews/{iso,front,…}.png` |
-| Gallery | `output/<part>/previews/index.html` |
-| Human review | `output/<part>/previews/human_review.json` |
+| STEP | `output/<name>/<name>.step` |
+| STL | `output/<name>/<name>.stl` |
+| Orthographic PNGs | `output/<name>/previews/{iso,front,…}.png` |
+| Interactive 3D | `output/<name>/previews/model.stl` |
+| Gallery | `output/<name>/previews/index.html` |
+| Human review | `output/<name>/previews/human_review.json` |
 
-Views and criteria come from `parts/<PART>/views.py` (loaded via `scripts/part_config.py`).
+Views: `stl3d` entries in `parts/<PART>/views.py` or `assemblies/<PART>/views.py`. DXF is not a pipeline gate.
 
 ## Helpers
 
@@ -41,4 +41,4 @@ Views and criteria come from `parts/<PART>/views.py` (loaded via `scripts/part_c
 | --- | --- |
 | `docker_cad.sh` | Pass-through `PART` into compose |
 | `open_gallery.sh` | HTTP serve previews on `:8765` |
-| `new_part.sh` | Scaffold from `parts/_template/` |
+| `new_part.sh` / `new_assembly.sh` | Scaffold templates |
