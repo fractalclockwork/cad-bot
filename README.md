@@ -48,3 +48,4 @@ Artifacts: `output/<part>/<part>.{step,stl}`, `<part>_profile.dxf`, `previews/`.
 ## License
 
 MIT — see [`LICENSE`](LICENSE).
+# cad-bot
