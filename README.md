@@ -34,6 +34,7 @@ Artifacts: `output/<name>/<name>.{step,stl}` and `previews/` (orthographic PNGs 
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Add a part or assembly |
 | [`AGENTS.md`](AGENTS.md) | Skill index + `PART` rules |
 | [`parts/README.md`](parts/README.md) / [`assemblies/README.md`](assemblies/README.md) | Layout conventions |
+| [`roadmap/README.md`](roadmap/README.md) | Feature roadmap (CadQuery proving ground → build123d endgate) |
 
 ## Tooling
 
